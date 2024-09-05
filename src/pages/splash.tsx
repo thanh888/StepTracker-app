@@ -12,7 +12,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import {Constant} from '../utils/constant-base';
 import StorageService from '../common/storage-service';
-import axios from 'axios';
 
 const SplashScreen = () => {
   //State for ActivityIndicator animation
@@ -44,11 +43,8 @@ const SplashScreen = () => {
     <View style={styles.container}>
       <Image
         source={require('../../assets/images/icon/splash.png')}
-        style={{width: '90%', resizeMode: 'contain', margin: 30}}
+        style={{width: '70%', resizeMode: 'contain', margin: 30}}
       />
-      {/* <Text style={{color: '#4E4EA1', fontSize: 40, fontWeight: 'bold'}}>
-        TATASU
-      </Text> */}
       <ActivityIndicator
         animating={animating}
         color="#FFFFFF"

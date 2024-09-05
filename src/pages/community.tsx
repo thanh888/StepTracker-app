@@ -320,13 +320,25 @@ const CommunityScreen = (route: any) => {
           </View>
         </View>
 
-        <View style={styles.webviewContainer}>
+        <View
+          style={[
+            styles.webviewContainer,
+            {
+              height:
+                route.webviewHeight > 0
+                  ? route.webviewHeight 
+                  : Dimensions.get('window').height * 10,
+            },
+          ]}>
           <WebView
             domStorageEnabled={true}
+            javaScriptEnabled={true}
+            cacheEnabled={false}
+            cacheMode={'LOAD_NO_CACHE'}
             source={{
               uri: url,
             }}
-            style={{flex: 1, backgroundColor: '#f1efff'}}
+            style={{flex: 1, backgroundColor: '#f1efff', height: '100%'}}
             onShouldStartLoadWithRequest={navState => {
               setViewWebView(navState.url);
               return false;
@@ -349,6 +361,8 @@ const styles = StyleSheet.create({
   rewardContainer: {
     alignItems: 'center',
     width: '100%',
+    flex: 1,
+    marginBottom: 10,
   },
   sectionTitle: {
     fontSize: 16,
@@ -506,9 +520,9 @@ const styles = StyleSheet.create({
   webviewContainer: {
     width: '100%',
     backgroundColor: '#f1efff',
-    height: Dimensions.get('window').height * 1.5, // Adjust height as needed
-    paddingBottom: 350,
-    marginBottom: 400,
+    color: '#f1efff',
+    flex: 1,
+    marginBottom: 80,
   },
 });
 

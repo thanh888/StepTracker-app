@@ -14,10 +14,8 @@ import {
 import WebView, {WebViewNavigation} from 'react-native-webview';
 import {Constant} from '../utils/constant-base';
 import ProgressBar from '../components/progress-bar-step';
-import InAppBrowser from 'react-native-inappbrowser-reborn';
 import {useTranslation} from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const {width} = Dimensions.get('window');
 
 interface HomeScreenProps {
   steps: number;
@@ -25,14 +23,9 @@ interface HomeScreenProps {
   elapsedTime: number;
   heartRate: number;
   isVN: boolean;
+  webviewHeight: number;
 }
-
-const MET_WALKING = 3.5; // MET value for walking
-const WEIGHT_KG = 70; // Weight in kg (Adjust based on user input)
 const SECONDS_PER_MINUTE = 60;
-const CALORIES_PER_MINUTE = (MET: number, weight: number) => {
-  return (MET * weight * 3.5) / 200;
-};
 
 const HomeScreen: React.FC<HomeScreenProps> = ({
   steps,
@@ -40,11 +33,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
   elapsedTime,
   heartRate,
   isVN,
+  webviewHeight,
 }) => {
   const [url, setUrl] = useState(
     isVN ? Constant.HOME_LINK_VI : Constant.HOME_LINK_EN,
   );
-  const [count, setCount] = useState(1);
   const [visible, setVisible] = useState(false);
   const [newUrl, setNewUrl] = useState('');
   const {t, i18n} = useTranslation();
@@ -84,6 +77,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     return false;
   }, []);
 
+  // const [webViewHeight, setWebViewHeight] = useState(webviewHeight);
+
+  // const handleMessage = useCallback((event: any) => {
+  //   const height = parseInt(event.nativeEvent.data);
+  //   console.log(height);
+  //   setVisible(false);
+
+  //   setWebViewHeight(height);
+  // }, []);
+
+  // const injectedJavaScript = `
+  //   (function() {
+  //     var body = document.body,
+  //         html = document.documentElement;
+  //     var height = Math.max( body.scrollHeight, body.offsetHeight,
+  //                            html.clientHeight, html.scrollHeight, html.offsetHeight );
+  //     window.ReactNativeWebView.postMessage(height.toString());
+  //   })();
+  //   true; // note: this is required for the injectedJavaScript to work
+  // `;
+
   if (visible) {
     return (
       <View style={{flex: 1}}>
@@ -101,9 +115,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
 
   return (
     <ScrollView
-      style={{flex: 1, backgroundColor: '#f1efff'}}
       contentContainerStyle={{flexGrow: 1}}
-      alwaysBounceVertical={true}>
+      style={{flex: 1, backgroundColor: '#f1efff'}}>
       <View style={styles.container}>
         <View style={styles.stepsContainer}>
           <ImageBackground
@@ -190,20 +203,31 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
           </View>
         </View>
       </View>
-      <View style={[styles.webviewContainer]}>
+
+      <View
+        style={[
+          styles.webviewContainer,
+          {
+            height:
+              webviewHeight > 0
+                ? webviewHeight
+                : Dimensions.get('window').height * 10,
+          },
+        ]}>
         <WebView
           style={{flex: 1, backgroundColor: '#f1efff'}}
-          javaScriptEnabled={true}
           domStorageEnabled={true}
-          // injectedJavaScript={`window.ReactNativeWebView.postMessage(document.body.scrollHeight);`}
+          javaScriptEnabled={true}
+          nestedScrollEnabled={false}
+          setSupportMultipleWindows={false}
+          scrollEnabled={false}
           source={{
-            uri: isVN ? Constant.HOME_LINK_VI : Constant.HOME_LINK_EN,
+            uri: url,
           }}
           onShouldStartLoadWithRequest={navState => {
             setViewWebView(navState.url);
             return false;
           }}
-          setSupportMultipleWindows={false}
         />
       </View>
     </ScrollView>
@@ -313,10 +337,7 @@ const styles = StyleSheet.create({
   },
   webviewContainer: {
     flex: 1,
-    width: Dimensions.get('window').width,
     backgroundColor: '#f1efff',
-    height: Dimensions.get('window').height * 2, // Adjust height as needed
-    marginBottom: 400,
-    paddingBottom: 250,
+    marginBottom: 80,
   },
 });

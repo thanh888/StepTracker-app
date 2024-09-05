@@ -85,8 +85,7 @@ export default HealthScreen;
 const styles = StyleSheet.create({
   webviewContainer: {
     flex: 1,
-    width: Dimensions.get('window').width,
     backgroundColor: '#f1efff',
-    height: Dimensions.get('window').height,
+    paddingBottom: 50,
   },
 });

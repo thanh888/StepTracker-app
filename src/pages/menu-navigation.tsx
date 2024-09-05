@@ -3,7 +3,6 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from './home';
 import HealthScreen from './health';
 import CommunityScreen from './community';
-import PracticeScreen from './practice';
 import ProfileScreen from './profile';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import StorageService from '../common/storage-service';
@@ -17,17 +16,17 @@ import {
   SensorTypes,
 } from 'react-native-sensors';
 
-import axios from 'axios';
-import {Constant} from '../utils/constant-base';
 import moment from 'moment';
 import {useTranslation} from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Constant} from '../utils/constant-base';
+import WebView from 'react-native-webview';
+import PracticeScreen from './practice';
 
 const Tab = createBottomTabNavigator();
 
 const MET_WALKING = 3.5; // MET value for walking
 const WEIGHT_KG = 75; // Weight in kg (Adjust based on user input)
-const SECONDS_PER_MINUTE = 60;
 const CALORIES_PER_MINUTE = (MET: number, weight: number) => {
   return (MET * weight * 3.5) / 200;
 };
@@ -41,12 +40,9 @@ export function MenuNavigation() {
 
   useEffect(() => {
     AsyncStorage.getItem('isVN').then((value: any) => {
-      console.log(JSON.parse(value));
       if (JSON.parse(value)) {
-        // changeLanguage('vi');
         setIsVN(true);
       } else {
-        // changeLanguage('en');
         setIsVN(false);
       }
     });
@@ -75,6 +71,7 @@ export function MenuNavigation() {
       getStep();
     }, []),
   );
+
   useFocusEffect(
     useCallback(() => {
       getCoin();
@@ -90,6 +87,7 @@ export function MenuNavigation() {
       StorageService.saveDateStep(today);
     }
   }
+
   async function getCoin() {
     if (!userInfo) {
       setSpurlus(0);
@@ -177,6 +175,62 @@ export function MenuNavigation() {
       };
     }
   }, [userInfo]);
+
+  const menuWebview = [
+    {
+      link: isVN ? Constant.HOME_LINK_VI : Constant.HOME_LINK_EN,
+      name: 'homepage',
+    },
+    {
+      link: isVN ? Constant.HEALTH_LINK_VI : Constant.HEALTH_LINK_EN,
+      name: 'healthpage',
+    },
+    {
+      link: isVN ? Constant.COMMUNITY_LINK_VI : Constant.COMMUNITY_LINK_EN,
+      name: 'communitypage',
+    },
+    {
+      link: isVN ? Constant.PRACTICE_LINK_VI : Constant.PRACTICE_LINK_EN,
+      name: 'practicepage',
+    },
+    {
+      link: isVN ? Constant.PROFILE_LINK_VI : Constant.PROFILE_LINK_EN,
+      name: 'profilepage',
+    },
+  ];
+
+  const [webViewHeights, setWebViewHeights] = useState({
+    homepage: 0,
+    healthpage: 0,
+    communitypage: 0,
+    practicepage: 0,
+    profilepage: 0,
+  });
+
+  const handleWebViewHeight = (height: number, name: string) => {
+    console.log(height);
+
+    setWebViewHeights(prevHeights => ({
+      ...prevHeights,
+      [name]: height,
+    }));
+  };
+
+  const handleMessage = (event: any, value: any) => {
+    const height = parseInt(event.nativeEvent.data, 10);
+    handleWebViewHeight(height, value.name);
+  };
+
+  const injectedJavaScript = `
+    (function() {
+      var body = document.body,
+          html = document.documentElement;
+      var height = Math.max( body.scrollHeight, body.offsetHeight, 
+                             html.clientHeight, html.scrollHeight, html.offsetHeight );
+      window.ReactNativeWebView.postMessage(height.toString());
+    })();
+    true; // note: this is required for the injectedJavaScript to work
+  `;
 
   return (
     <View style={{flex: 1}}>
@@ -269,6 +323,7 @@ export function MenuNavigation() {
               elapsedTime={elapsedTime}
               heartRate={heartRate}
               isVN={isVN}
+              webviewHeight={webViewHeights.homepage}
             />
           )}
           options={{
@@ -293,6 +348,7 @@ export function MenuNavigation() {
               testValue={testValue}
               getCoin={getCoin}
               isVN={isVN}
+              webviewHeight={webViewHeights.communitypage}
             />
           )}
           options={{
@@ -302,7 +358,16 @@ export function MenuNavigation() {
         />
         <Tab.Screen
           name="Practice"
-          children={() => <PracticeScreen isVN={isVN} />}
+          children={() => (
+            <PracticeScreen
+              steps={steps}
+              calories={calories}
+              elapsedTime={elapsedTime}
+              heartRate={heartRate}
+              isVN={isVN}
+              webviewHeight={webViewHeights.practicepage}
+            />
+          )}
           options={{
             tabBarLabel: t('practice_section'),
             unmountOnBlur: true,
@@ -319,6 +384,7 @@ export function MenuNavigation() {
               getCoin={getCoin}
               setSpurlus={setSpurlus}
               setSteps={setSteps}
+              webviewHeight={webViewHeights.profilepage}
             />
           )}
           options={{
@@ -327,6 +393,23 @@ export function MenuNavigation() {
           }}
         />
       </Tab.Navigator>
+      <View style={{flex: 1, display: 'none'}}>
+        {menuWebview.map((value, key) => {
+          return (
+            <WebView
+              key={key}
+              style={{flex: 1, backgroundColor: '#f1efff'}}
+              domStorageEnabled={true}
+              javaScriptEnabled={true}
+              onMessage={event => handleMessage(event, value)}
+              injectedJavaScript={injectedJavaScript}
+              source={{
+                uri: value.link,
+              }}
+            />
+          );
+        })}
+      </View>
     </View>
   );
 }

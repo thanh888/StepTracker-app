@@ -85,102 +85,107 @@ const ProfileScreen = (route: any) => {
     }, []),
   );
 
-  if (visible) {
-    return (
-      <View style={{flex: 1}}>
-        <WebView
-          source={{uri: newUrl}}
-          style={{flex: 1}}
-          onShouldStartLoadWithRequest={navState => {
-            Linking.openURL(navState.url);
+   if (visible) {
+     return (
+       <View style={{flex: 1}}>
+         <WebView
+           source={{uri: newUrl}}
+           style={{flex: 1}}
+           onShouldStartLoadWithRequest={navState => {
+             Linking.openURL(navState.url);
 
-            return false;
-          }}
-        />
-      </View>
-    );
-  }
-  return (
-    <ScrollView
-      contentContainerStyle={{flexGrow: 1}}
-      style={{flex: 1, backgroundColor: '#f1efff'}}>
-      <View style={styles.container}>
-        <ImageBackground
-          source={require('../../assets/images/icon/bg_gradient.jpg')}
-          resizeMode="cover"
-          style={styles.header}>
-          <Image
-            source={require('../../assets/images/icon/avatar.png')}
-            style={styles.profileImage}
-          />
-          <Text style={styles.username}>
-            {userInfo && userInfo.name ? userInfo.name : 'abc123'}
-          </Text>
-          <Text style={styles.userId}>
-            {userInfo && userInfo.code ? userInfo.code : 'abc123'}
-          </Text>
-          <View style={styles.containerInfo}>
-            <View style={styles.balanceContainer}>
-              <Text style={styles.balanceText}>{t('balance_coins')}</Text>
-              <Text style={styles.balanceAmount}>
-                {route && route.spurlus ? route.spurlus : '0'}
-              </Text>
-            </View>
-            <View style={styles.withdrawContainer}>
-              <Text style={styles.withdrawText}>{t('coins_to_vnd')}</Text>
-              <TouchableOpacity
-                onPress={() => redirectToWithdraw()}
-                style={styles.withdrawButton}>
-                <Text style={styles.withdrawButtonText}>
-                  {t('withdraw_button')}
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity onPress={() => handleLogout()}>
-              <Image
-                source={require('../../assets/images/icon/logout.png')}
-                style={{width: 50, height: 50}}
-              />
-            </TouchableOpacity>
-          </View>
-        </ImageBackground>
-        <View style={styles.menuContainer}>
-          {menuItems.map((item: any, index) => (
-            <TouchableOpacity
-              onPress={() => handleRote(item.key)}
-              key={index}
-              style={styles.menuItem}>
-              <Image source={item.image} style={styles.menuIcon} />
-              <Text style={styles.menuText}>{t(item.name)}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <View
-          style={{
-            flex: 1,
-            width: '100%',
-            height: Dimensions.get('window').height * 1.5,
-            backgroundColor: '#f1efff',
-            paddingBottom: 300,
-          }}>
-          <WebView
-            domStorageEnabled={true}
-            source={{
-              uri: url,
-            }}
-            originWhitelist={['*']}
-            style={{flex: 1, backgroundColor: '#f1efff'}}
-            onShouldStartLoadWithRequest={navState => {
-              setViewWebView(navState.url);
+             return false;
+           }}
+         />
+       </View>
+     );
+   }
+   return (
+     <ScrollView
+       contentContainerStyle={{flexGrow: 1}}
+       style={{flex: 1, backgroundColor: '#f1efff'}}>
+       <View style={styles.container}>
+         <ImageBackground
+           source={require('../../assets/images/icon/bg_gradient.jpg')}
+           resizeMode="cover"
+           style={styles.header}>
+           <Image
+             source={require('../../assets/images/icon/avatar.png')}
+             style={styles.profileImage}
+           />
+           <Text style={styles.username}>
+             {userInfo && userInfo.name ? userInfo.name : 'abc123'}
+           </Text>
+           <Text style={styles.userId}>
+             {userInfo && userInfo.code ? userInfo.code : 'abc123'}
+           </Text>
+           <View style={styles.containerInfo}>
+             <View style={styles.balanceContainer}>
+               <Text style={styles.balanceText}>{t('balance_coins')}</Text>
+               <Text style={styles.balanceAmount}>
+                 {route && route.spurlus ? route.spurlus : '0'}
+               </Text>
+             </View>
+             <View style={styles.withdrawContainer}>
+               <Text style={styles.withdrawText}>{t('coins_to_vnd')}</Text>
+               <TouchableOpacity
+                 onPress={() => redirectToWithdraw()}
+                 style={styles.withdrawButton}>
+                 <Text style={styles.withdrawButtonText}>
+                   {t('withdraw_button')}
+                 </Text>
+               </TouchableOpacity>
+             </View>
+             <TouchableOpacity onPress={() => handleLogout()}>
+               <Image
+                 source={require('../../assets/images/icon/logout.png')}
+                 style={{width: 50, height: 50}}
+               />
+             </TouchableOpacity>
+           </View>
+         </ImageBackground>
+         <View style={styles.menuContainer}>
+           {menuItems.map((item: any, index) => (
+             <TouchableOpacity
+               onPress={() => handleRote(item.key)}
+               key={index}
+               style={styles.menuItem}>
+               <Image source={item.image} style={styles.menuIcon} />
+               <Text style={styles.menuText}>{t(item.name)}</Text>
+             </TouchableOpacity>
+           ))}
+         </View>
+         <View
+           style={{
+             flex: 1,
+             width: '100%',
+             height:
+               route.webviewHeight > 0
+                 ? route.webviewHeight
+                 : Dimensions.get('window').height * 5,
+             backgroundColor: '#f1efff',
+             marginBottom: 80,
+           }}>
+           <WebView
+             domStorageEnabled={true}
+             nestedScrollEnabled={false}
+             scrollEnabled={false}
+             source={{
+               uri: url,
+             }}
+             originWhitelist={['*']}
+             style={{flex: 1, backgroundColor: '#f1efff'}}
+             onShouldStartLoadWithRequest={navState => {
+               setViewWebView(navState.url);
 
-              return false;
-            }}
-            setSupportMultipleWindows={false}
-          />
-        </View>
-      </View>
-    </ScrollView>
-  );
+               return false;
+             }}
+             setSupportMultipleWindows={false}
+           />
+         </View>
+       </View>
+     </ScrollView>
+   );
 };
 
 const menuItems = [

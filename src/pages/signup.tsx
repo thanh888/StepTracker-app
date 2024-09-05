@@ -38,8 +38,6 @@ const RegisterScreen = (props: any) => {
   const [currentLanguage, setLanguage] = useState('en');
 
   const changeLanguage = (value: string) => {
-    console.log(value);
-
     i18n
       .changeLanguage(value)
       .then(() => setLanguage(value))
@@ -48,7 +46,6 @@ const RegisterScreen = (props: any) => {
 
   useEffect(() => {
     AsyncStorage.getItem('isVN').then((value: any) => {
-      console.log(JSON.parse(value));
       if (JSON.parse(value)) {
         changeLanguage('vi');
       } else {
@@ -59,7 +56,7 @@ const RegisterScreen = (props: any) => {
 
   const handleSubmitButton = async () => {
     setErrortext('');
-    if (!username || !email || !name || !password || !confirmPassword) {
+    if (!username || !name || !password || !confirmPassword) {
       setErrortext(t('information_blank_error'));
       return;
     }
@@ -158,19 +155,6 @@ const RegisterScreen = (props: any) => {
               selectionColor={'#fff'}
               placeholderTextColor="#8b9cb5"
               autoCapitalize="sentences"
-              returnKeyType="next"
-              blurOnSubmit={false}
-            />
-          </View>
-          <View style={styles.SectionStyle}>
-            <TextInput
-              style={styles.inputStyle}
-              onChangeText={setEmail}
-              selectionColor={'#fff'}
-              underlineColorAndroid="#f000"
-              placeholder="Email"
-              placeholderTextColor="#8b9cb5"
-              keyboardType="email-address"
               returnKeyType="next"
               blurOnSubmit={false}
             />
